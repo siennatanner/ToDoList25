@@ -6,11 +6,14 @@
 //
 
 import SwiftUI
-
+import SwiftData
 
 
 struct NewToDoView: View {
     @State private var isToggleOn = false
+    @Binding var showNewTask: Bool
+    @Bindable var toDoItem: ToDoItem
+    @Environment(\.modelContext) var modelContext
     
     var body: some View {
         
@@ -19,20 +22,20 @@ struct NewToDoView: View {
             Text("Task title:")
                 .font(.title)
                 .fontWeight(.bold)
-            TextField("Enter the task description...", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
+            TextField("Enter the task description...", text: $toDoItem.title, axis: .vertical)
                 .padding()
                 .background(Color(.systemGroupedBackground))
                 .cornerRadius(15)
                 .padding()
             
-            Toggle(isOn: $isToggleOn) { 
+            Toggle(isOn: $toDoItem.isImportant) {
                 Text("Is it important?")
             }
-            // had to change the toggle from the KWK directions to make it work
-            
             
             
             Button {
+                addToDo()
+                showNewTask = false
             } label: {
                 Text("Save")
             }
@@ -40,8 +43,12 @@ struct NewToDoView: View {
         }
         .padding()
     }
+    func addToDo() {
+        let toDo = ToDoItem(title: toDoItem.title, isImportant: toDoItem.isImportant)
+        modelContext.insert(toDo)
+    }
 }
 
 #Preview {
-    NewToDoView()
+    NewToDoView(showNewTask: .constant(false), toDoItem: ToDoItem(title: "", isImportant: false))
 }
